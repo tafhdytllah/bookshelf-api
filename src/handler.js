@@ -13,20 +13,18 @@ const createBookHandler = (request, h) => {
     reading,
   } = request.payload;
 
-  if (name === undefined) {
-    const response = h.response({
-      status: "fail",
-      message: "Gagal menambahkan buku. Mohon isi nama buku",
-    });
-    response.code(400);
-    return response;
-  }
+  const dataFieldValidation = {
+    name: name,
+    readPage: readPage,
+    pageCount: pageCount,
+    flag: "menambahkan",
+  };
 
-  if (readPage > pageCount) {
+  const error = validation(dataFieldValidation);
+  if (error) {
     const response = h.response({
       status: "fail",
-      message:
-        "Gagal menambahkan buku. readPage tidak boleh lebih besar dari pageCount",
+      message: error,
     });
     response.code(400);
     return response;
@@ -77,6 +75,18 @@ const createBookHandler = (request, h) => {
   return response;
 };
 
+function validation(data) {
+  const { name, readPage, pageCount, flag } = data;
+
+  if (name === undefined) {
+    return `Gagal ${flag} buku. Mohon isi nama buku`;
+  }
+
+  if (readPage > pageCount) {
+    return `Gagal ${flag} buku. readPage tidak boleh lebih besar dari pageCount`;
+  }
+}
+
 const listBookHandler = (request, h) => {
   const { name, reading, finished } = request.query;
 
@@ -91,13 +101,13 @@ const listBookHandler = (request, h) => {
 
   // Filter berdasarkan reading
   if (reading !== undefined) {
-    const isReading = reading === "1"; // 1 untuk true
+    const isReading = reading === "1";
     filteredBooks = filteredBooks.filter((book) => book.reading === isReading);
   }
 
   // Filter berdasarkan finished
   if (finished !== undefined) {
-    const isFinished = finished === "1"; // 1 untuk true
+    const isFinished = finished === "1";
     filteredBooks = filteredBooks.filter(
       (book) => book.finished === isFinished
     );
@@ -151,20 +161,18 @@ const updateBookHandler = (request, h) => {
 
   const updatedAt = new Date().toISOString();
 
-  if (name === undefined) {
-    const response = h.response({
-      status: "fail",
-      message: "Gagal memperbarui buku. Mohon isi nama buku",
-    });
-    response.code(400);
-    return response;
-  }
+  const dataFieldValidation = {
+    name: name,
+    readPage: readPage,
+    pageCount: pageCount,
+    flag: "memperbarui",
+  };
 
-  if (readPage > pageCount) {
+  const error = validation(dataFieldValidation);
+  if (error) {
     const response = h.response({
       status: "fail",
-      message:
-        "Gagal memperbarui buku. readPage tidak boleh lebih besar dari pageCount",
+      message: error,
     });
     response.code(400);
     return response;
